@@ -91,6 +91,7 @@ headers = dashboard_soup.find_all("div",{"class" : 'tblview-group'})
 print(group_headers)
 tables = dashboard_soup.find_all('table')
 
+location_list = {}
 
 for groups in headers : 
 
@@ -106,6 +107,7 @@ for groups in headers :
 	for each in data :
 		scaped_data.append( [value.get_text() for value in each])
 	print(scaped_data)
+	location_list[header.get_text()] = scaped_data
 	# for location in rows:
 	# 	print(""+location.get_text())
 		# data.append(location.get_text())
@@ -129,10 +131,11 @@ for groups in headers :
 
 # # 	print("=====================================")
 
-location_list = {}
 
 print(len(data))
 print(len(group_headers))
+
+# pprint.pprint(location_list)
 # for each in in headers : 
 # 	location_list[each] 
 
