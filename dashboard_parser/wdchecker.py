@@ -37,39 +37,43 @@
 import requests, lxml.html , bs4
 import parsing_dashboard
 import pprint
+import logging 
 
-s = requests.session()
+def initialize_session ():
+	s = requests.session()
 
-### Here, we're getting the login page and then grabbing hidden form
-### fields.  We're probably also getting several session cookies too.
-login = s.get('https://streetsoncloud.com/login')
-login.raise_for_status()
+	### Here, we're getting the login page and then grabbing hidden form
+	### fields.  We're probably also getting several session cookies too.
+	login = s.get('https://streetsoncloud.com/login',timeout=2)
+	login.raise_for_status()
+		
+	login_html = lxml.html.fromstring(login.text)
+	# hidden_inputs = login_html.xpath(r'//form//input[@type="hidden"]')
+	# form = {x.attrib["name"]: x.attrib["value"] for x in hidden_inputs}
+	form = {	}
+	### Now that we have the hidden form fields, let's add in our 
+	### username and password.
+	# form['username'] = "Rmikati" # Enter an email here.  Not mine.
+	# form['password'] = "Rmikati12" # I'm definitbely not telling you my password.
 
-login_html = lxml.html.fromstring(login.text)
-# hidden_inputs = login_html.xpath(r'//form//input[@type="hidden"]')
-# form = {x.attrib["name"]: x.attrib["value"] for x in hidden_inputs}
-form = {}
-### Now that we have the hidden form fields, let's add in our 
-### username and password.
-# form['username'] = "Rmikati" # Enter an email here.  Not mine.
-# form['password'] = "Rmikati12" # I'm definitbely not telling you my password.
+	form['username'] = "Staging" # Enter an email here.  Not mine.
+	form['password'] = "Staging123" # I'm definitbely not telling you my password.
+	response = s.post('https://streetsoncloud.com/login', data=form)
 
-form['username'] = "Staging" # Enter an email here.  Not mine.
-form['password'] = "Staging123" # I'm definitbely not telling you my password.
-response = s.post('https://streetsoncloud.com/login', data=form)
+	response.raise_for_status()
 
-response.raise_for_status()
+	print(response.status_code)
+	print(response.url)
 
-print(response.status_code)
-print(response.url)
+	signs_dashboard = s.get('https://streetsoncloud.com/signs/tableview')
+	response.raise_for_status()
 
-signs_dashboard = s.get('https://streetsoncloud.com/signs/tableview')
-response.raise_for_status()
+	# with open("streetsonclouddb.html","wb") as f : 
+	# 	f.write(signs_dashboard.content)
 
-# with open("streetsonclouddb.html","wb") as f : 
-# 	f.write(signs_dashboard.content)
+	dashboard_soup = bs4.BeautifulSoup(signs_dashboard.text,"lxml")
+	return dashboard_soup
 
-dashboard_soup = bs4.BeautifulSoup(signs_dashboard.text,"lxml")
 
 # print(dashboard_soup.find_all("div",{"class": "list-group group-name"}))
 # for group_name in dashboard_soup.find_all("div",{"class": "list-group group-name"}):
@@ -80,40 +84,52 @@ dashboard_soup = bs4.BeautifulSoup(signs_dashboard.text,"lxml")
 
 
 
-group_headers = []
-data = []
 
-headers = dashboard_soup.find_all("div",{"class" : 'tblview-group'})
-
-# for each in headers: 
-# 	group_headers.append(each.get_text())
-
-print(group_headers)
-tables = dashboard_soup.find_all('table')
-
-location_list = {}
-
-for groups in headers : 
-
-	header = groups.find("div",{"class":"list-group group-name"})
-	# print(header.get_text()\)
-	group = groups.find("tbody")
-	rows = group.find_all("tr")	
-
-	data = [row.find_all("td") for row in rows]
-
-	print(header.get_text())
-	scaped_data = []
-	for each in data :
-		scaped_data.append( [value.get_text() for value in each])
-	print(scaped_data)
-	location_list[header.get_text()] = scaped_data
-	# for location in rows:
-	# 	print(""+location.get_text())
-		# data.append(location.get_text())
+def dashboard_parse_tables (dashboard_soup):
 
 
-	print("===============================")
+	group_headers = []
+	data = []
+
+	headers = dashboard_soup.find_all("div",{"class" : 'tblview-group'})
+
+	# for each in headers: 
+	# 	group_headers.append(each.get_text())
+
+	print(group_headers)
+	tables = dashboard_soup.find_all('table')
+
+
+
+	location_list = {}
+
+	for groups in headers : 
+
+		header = groups.find("div",{"class":"list-group group-name"})
+		# print(header.get_text()\)
+		group = groups.find("tbody")
+		rows = group.find_all("tr")	
+
+		data = [row.find_all("td") for row in rows]
+
+		print(header.get_text())
+		scaped_data = []
+		for each in data :
+			scaped_data.append( [value.get_text() for value in each])
+		print(scaped_data)
+		location_list[header.get_text()] = scaped_data
+		# for location in rows:
+		# 	print(""+location.get_text())
+			# data.append(location.get_text())
+
+
+		print("===============================")
+		
+	return location_list
+
+html_soup = initialize_session()
+location_list = dashboard_parse_tables(html_soup)
+print(location_list["DEMO"])
 
 # for table  in tables:
 # 	print(table)
@@ -132,8 +148,6 @@ for groups in headers :
 # # 	print("=====================================")
 
 
-print(len(data))
-print(len(group_headers))
 
 # pprint.pprint(location_list)
 # for each in in headers : 
