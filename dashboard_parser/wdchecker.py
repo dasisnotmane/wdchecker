@@ -1,37 +1,4 @@
-# import requests
-# from lxml import html
 
-# session_requests = requests.session()
-
-# login_url = "https://bitbucket.org/account/signin/?next=/"
-# result = session_requests.get(login_url)
-
-# tree = html.fromstring(result.text)
-# authenticity_token = list(set(tree.xpath("//input[@name='csrfmiddlewaretoken']/@value")))[0]
-
-# result = session_requests.post(
-# 	login_url, 
-# 	data = payload, 
-# 	headers = dict(referer=login_url)
-# )
-
-
-# url = 'https://bitbucket.org/dashboard/overview'
-# result = session_requests.get(
-# 	url, 
-# 	headers = dict(referer = url)
-# )
-
-# account.
-
-# tree = html.fromstring(result.content)
-# bucket_names = tree.xpath("//div[@class='repo-list--repo']/a/text()")
-
-# print(bucket_names)
-
-
-# result.ok # Will tell us if the last request was ok
-# result.status_code # Will give us the status from the last request
 
 
 import requests, lxml.html , bs4
@@ -39,25 +6,24 @@ import parsing_dashboard
 import pprint
 import logging 
 
+
+
 def initialize_session ():
+	# get a session , makes it easier since it retains cookies thus makes it more eff
+	# for continuous requests
 	s = requests.session()
 
-	### Here, we're getting the login page and then grabbing hidden form
-	### fields.  We're probably also getting several session cookies too.
+	# here we make a request for the login page
 	login = s.get('https://streetsoncloud.com/login',timeout=2)
+	# check status code of request(ok 200) 
+	# stop the program is error 404
 	login.raise_for_status()
-		
-	login_html = lxml.html.fromstring(login.text)
-	# hidden_inputs = login_html.xpath(r'//form//input[@type="hidden"]')
-	# form = {x.attrib["name"]: x.attrib["value"] for x in hidden_inputs}
-	form = {	}
-	### Now that we have the hidden form fields, let's add in our 
-	### username and password.
-	# form['username'] = "Rmikati" # Enter an email here.  Not mine.
-	# form['password'] = "Rmikati12" # I'm definitbely not telling you my password.
+	
 
-	form['username'] = "Staging" # Enter an email here.  Not mine.
-	form['password'] = "Staging123" # I'm definitbely not telling you my password.
+	form = {	}
+
+	form['username'] = "Staging" 
+	form['password'] = "Staging123" 
 	response = s.post('https://streetsoncloud.com/login', data=form)
 
 	response.raise_for_status()
@@ -67,7 +33,6 @@ def initialize_session ():
 
 	signs_dashboard = s.get('https://streetsoncloud.com/signs/tableview')
 	response.raise_for_status()
-
 	# with open("streetsonclouddb.html","wb") as f : 
 	# 	f.write(signs_dashboard.content)
 
@@ -124,12 +89,26 @@ def dashboard_parse_tables (dashboard_soup):
 
 
 		print("===============================")
-		
+
 	return location_list
+
+
+# def dasboard_check_batt ():
+# def dasbaord_check_serial ():
+# def dashboard_check_time ():
+# def dashboard_check_location():
+# def dashboard_check_model():
+# def dashboard_check_group():
+
+
+
+
 
 html_soup = initialize_session()
 location_list = dashboard_parse_tables(html_soup)
 print(location_list["DEMO"])
+
+
 
 # for table  in tables:
 # 	print(table)
