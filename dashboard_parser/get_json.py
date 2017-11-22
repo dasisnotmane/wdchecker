@@ -1,12 +1,11 @@
 
-
-
 import requests, lxml.html , bs4
 import parsing_dashboard
 import pprint
 import logging 
 import time
 import sys 
+import json 
 
 def initialize_session ():
 	# get a session , makes it easier since it retains cookies thus makes it more eff
@@ -32,8 +31,23 @@ def initialize_session ():
 	print(response.url)
 
 	signs_dashboard = s.get('https://streetsoncloud.com/signs/tableview')
-	print(signs_dashboard.text.encode("utf-8"))
+	# print(signs_dashboard.text.encode("utf-8"))
 	response.raise_for_status()
+
+	header = {
+	'Host': 'streetsoncloud.com',
+	'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0',
+	'Accept': 'application/json, text/javascript, */*; q=0.01',
+	'Accept-Language': 'en-US,en;q=0.5',
+	'Accept-Encoding': 'gzip, deflate, br',
+	'Content-Type': 'application/x-www-form-urlencoded',
+	'X-Requested-With': 'XMLHttpRequest',
+	'Referer': 'https://streetsoncloud.com/signs/tableview'
+
+
+	}
+	data = s.post('https://streetsoncloud.com/signs/tableview/getdata', headers = header)
+	pprint.pprint(data.json())
 	# with open("streetsonclouddb.html","wb") as f : 
 	# 	f.write(signs_dashboard.content)
 
@@ -102,9 +116,9 @@ def dashboard_parse_tables (dashboard_soup):
 
 
 html_soup = initialize_session()
-location_list = dashboard_parse_tables(html_soup)
+# location_list = dashboard_parse_tables(html_soup)
 # print(location_list["16666"])
-time.sleep(2)
+
 
 
 # for table  in tables:
