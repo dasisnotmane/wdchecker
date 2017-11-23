@@ -1,6 +1,5 @@
 import requests, lxml.html , bs4
 import parsing_dashboard
-import pprint
 import logging 
 
 session_logger = logging.getLogger("login")
@@ -47,16 +46,31 @@ class wduser :
 		session_logger.info("login status{}".format(response.status_code))
 		session_logger.info("Current Page : {}".format(response.url))
 
-		signs_dashboard = self.session.get('https://streetsoncloud.com/signs/tableview')
-		response.raise_for_status()
+	def get_dashboard_html (self):
+		headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0',
+					'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+'Accept-Language': 'en-US,en;q=0.5',
+'Accept-Encoding': 'gzip, deflate, br'
+		}
+		signs_dashboard = self.session.get('https://streetsoncloud.com/signs/tableview',headers=headers)
+		signs_dashboard.raise_for_status()
 		session_logger.info("dashboard page status : {}".format(signs_dashboard.status_code))
 		session_logger.info("Moving to dashboard page : {}".format(signs_dashboard.url))	
 		# with open("streetsonclouddb.html","wb") as f : 
 		# 	f.write(signs_dashboard.content)
-		dashboard_soup = bs4.BeautifulSoup(signs_dashboard.text,"lxml")
+		return signs_dashboard.text
+
+
+	def get_dashboard_soup(self,html_file):
+
+		dashboard_soup = bs4.BeautifulSoup(html_file,"lxml")
 		return dashboard_soup
+
 
 
 tl = wduser("Staging","Staging123")
 tl.initialize_session()
 tl.login_session()
+htmlfile = tl.get_dashboard_html()
+print(htmlfile)
+# htmlsoup = tl.get_dashboard_soup(htmlfile)

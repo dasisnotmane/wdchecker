@@ -3,7 +3,6 @@
 
 import requests, lxml.html , bs4
 import parsing_dashboard
-import pprint
 import logging 
 
 
@@ -61,7 +60,7 @@ def dashboard_parse_tables (dashboard_soup):
 	# for each in headers: 
 	# 	group_headers.append(each.get_text())
 
-	print(group_headers)
+	# print(group_headers)
 	tables = dashboard_soup.find_all('table')
 
 
@@ -77,11 +76,12 @@ def dashboard_parse_tables (dashboard_soup):
 
 		data = [row.find_all("td") for row in rows]
 
-		print(header.get_text())
+		# print(header.get_text())
 		scaped_data = []
 		for each in data :
 			scaped_data.append( [value.get_text() for value in each])
-		print(scaped_data)
+			
+		# print(scaped_data)
 		location_list[header.get_text()] = scaped_data
 		# for location in rows:
 		# 	print(""+location.get_text())
@@ -106,7 +106,7 @@ def dashboard_parse_tables (dashboard_soup):
 
 html_soup = initialize_session()
 location_list = dashboard_parse_tables(html_soup)
-print(location_list["DEMO"])
+print(location_list["16666"])
 
 
 
