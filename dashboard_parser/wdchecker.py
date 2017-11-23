@@ -4,8 +4,9 @@
 import requests, lxml.html , bs4
 import parsing_dashboard
 import logging 
-
-
+import time
+import sys 
+import pprint
 
 def initialize_session ():
 	# get a session , makes it easier since it retains cookies thus makes it more eff
@@ -31,6 +32,7 @@ def initialize_session ():
 	print(response.url)
 
 	signs_dashboard = s.get('https://streetsoncloud.com/signs/tableview')
+	print(signs_dashboard.text.encode("utf-8"))
 	response.raise_for_status()
 	# with open("streetsonclouddb.html","wb") as f : 
 	# 	f.write(signs_dashboard.content)
@@ -45,8 +47,6 @@ def initialize_session ():
 
 
 # for row in dashboard_soup.find_all("div",{"class": "tblview-group"}):
-
-
 
 
 def dashboard_parse_tables (dashboard_soup):
@@ -80,7 +80,10 @@ def dashboard_parse_tables (dashboard_soup):
 		scaped_data = []
 		for each in data :
 			scaped_data.append( [value.get_text() for value in each])
+<<<<<<< HEAD
 			
+=======
+>>>>>>> origin/json_parsing
 		# print(scaped_data)
 		location_list[header.get_text()] = scaped_data
 		# for location in rows:
@@ -102,12 +105,15 @@ def dashboard_parse_tables (dashboard_soup):
 
 
 
-
-
 html_soup = initialize_session()
 location_list = dashboard_parse_tables(html_soup)
+<<<<<<< HEAD
 print(location_list["16666"])
 
+=======
+# print(location_list["16666"])
+time.sleep(2)
+>>>>>>> origin/json_parsing
 
 
 # for table  in tables:
