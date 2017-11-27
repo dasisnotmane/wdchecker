@@ -35,15 +35,14 @@ def initialize_session ():
 	response.raise_for_status()
 
 	header = {
-	'Host': 'streetsoncloud.com',
-	'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0',
-	'Accept': 'application/json, text/javascript, */*; q=0.01',
-	'Accept-Language': 'en-US,en;q=0.5',
-	'Accept-Encoding': 'gzip, deflate, br',
-	'Content-Type': 'application/x-www-form-urlencoded',
-	'X-Requested-With': 'XMLHttpRequest',
-	'Referer': 'https://streetsoncloud.com/signs/tableview'
-
+		'Host': 'streetsoncloud.com',
+		'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0',
+		'Accept': 'application/json, text/javascript, */*; q=0.01',
+		'Accept-Language': 'en-US,en;q=0.5',
+		'Accept-Encoding': 'gzip, deflate, br',
+		'Content-Type': 'application/x-www-form-urlencoded',
+		'X-Requested-With': 'XMLHttpRequest',
+		'Referer': 'https://streetsoncloud.com/signs/tableview'
 
 	}
 	data = s.post('https://streetsoncloud.com/signs/tableview/getdata', headers = header)

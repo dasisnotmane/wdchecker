@@ -7,6 +7,7 @@ import logging
 import time
 import sys 
 import pprint
+# import get_json
 
 def initialize_session ():
 	# get a session , makes it easier since it retains cookies thus makes it more eff
@@ -32,7 +33,7 @@ def initialize_session ():
 	print(response.url)
 
 	signs_dashboard = s.get('https://streetsoncloud.com/signs/tableview')
-	print(signs_dashboard.text.encode("utf-8"))
+	# print(signs_dashboard.text.encode("utf-8"))
 	response.raise_for_status()
 	# with open("streetsonclouddb.html","wb") as f : 
 	# 	f.write(signs_dashboard.content)
@@ -70,7 +71,7 @@ def dashboard_parse_tables (dashboard_soup):
 	for groups in headers : 
 
 		header = groups.find("div",{"class":"list-group group-name"})
-		# print(header.get_text()\)
+		# print(header.get_text()
 		group = groups.find("tbody")
 		rows = group.find_all("tr")	
 
@@ -80,10 +81,7 @@ def dashboard_parse_tables (dashboard_soup):
 		scaped_data = []
 		for each in data :
 			scaped_data.append( [value.get_text() for value in each])
-<<<<<<< HEAD
 			
-=======
->>>>>>> origin/json_parsing
 		# print(scaped_data)
 		location_list[header.get_text()] = scaped_data
 		# for location in rows:
@@ -107,13 +105,10 @@ def dashboard_parse_tables (dashboard_soup):
 
 html_soup = initialize_session()
 location_list = dashboard_parse_tables(html_soup)
-<<<<<<< HEAD
 print(location_list["16666"])
 
-=======
 # print(location_list["16666"])
 time.sleep(2)
->>>>>>> origin/json_parsing
 
 
 # for table  in tables:
