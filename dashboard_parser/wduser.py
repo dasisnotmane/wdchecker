@@ -86,6 +86,7 @@ class wduser :
 
                 data = self.session.post('https://streetsoncloud.com/signs/tableview/getdata', headers = self.dashboard_header)
                 live_data = data.json()
+                live_data = data.json()
                 return live_data
         def dashboard_parse_tables (self):
 
@@ -96,6 +97,8 @@ class wduser :
                 headers = self.dashboard_soup.find_all("div",{"class" : 'tblview-group'})
                 tables = self.dashboard_soup.find_all('table')
 
+                # for each in headers: 
+                #       group_headers.append(each.get_text())
 
                 location_list = {}
 
@@ -128,13 +131,9 @@ class wduser :
                     
 
 
-                        #print("===============================")
-                #location_list = {key:value for key,value in zip(id_reference,scaped_data)}
-                #session_logger.debug("data reference key: {}".format(id_reference))
-                #session_logger.debug(" data : {}".format(scaped_data))       
                 return location_list 
-
-
+                # print(group_headers)
+                
 
 
                         
