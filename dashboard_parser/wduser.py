@@ -85,12 +85,8 @@ class wduser :
         def get_dashboard_json ( self):
 
                 data = self.session.post('https://streetsoncloud.com/signs/tableview/getdata', headers = self.dashboard_header)
-                # pprint.pprint(data.json())
                 live_data = data.json()
-                # pprint.pprint(live_data)
                 return live_data
-                # print(live_data['menu_line']) 
-                # print(data.json()['min_speed'])
         def dashboard_parse_tables (self):
 
                 
@@ -98,52 +94,45 @@ class wduser :
                 data = []
 
                 headers = self.dashboard_soup.find_all("div",{"class" : 'tblview-group'})
-
-                # for each in headers: 
-                #       group_headers.append(each.get_text())
-
-                # print(group_headers)
                 tables = self.dashboard_soup.find_all('table')
 
 
-                id_reference = []
-                scaped_data = []
-
                 location_list = {}
+
+                # cycle through each group in the dashboard
                 for groups in headers : 
 
+                        # find the name of that group 
                         header = groups.find("div",{"class":"list-group group-name"})
                         
-                        # print(header.get_text()
                         group = groups.find("tbody")
                         rows = group.find_all("tr")     
-
+                        # for every row make a list of the data elements 
                         data = [row.find_all("td") for row in rows]
-                        
-                        # id_reference = [ id_reference.append(tag.get(id) ) for tag in groups.find_all("td") if (tag.get(id) not in id_reference)]     
+                        id_reference = []
+                        scaped_data = []
+
+                        # get a list of all the reference ids (used to indicate which location)
                         for tag in group.find_all("td"):
                                 if tag.has_attr("id"):
                                     if tag.get("id")[1:] not in id_reference:
-                                            
                                             id_reference.append(tag.get("id")[1:])
-                                            #print(tag.get("id")[1:])
-                                # print(header.get_text())
+                        # get a list of all the individual data from that row of data 
                         for each in data :
                                 scaped_data.append( [value.get_text() for value in each])
-                        #location_list[header.get_text()] = scaped_data
+                        session_logger.debug("Header : {}".format(header.get_text()))
 
+                        #top level of the dict - contains groupnames 
+                        location_list[header.get_text()] =  {key:value for key,value in zip(id_reference,scaped_data)}
 
-                        # for location in rows:
-                        #       print(""+location.get_text())
-                                # data.append(location.get_text())
+                    
 
 
                         #print("===============================")
-                 
-                location_list = {key:value for key,value in zip(id_reference,scaped_data)}
+                #location_list = {key:value for key,value in zip(id_reference,scaped_data)}
                 #session_logger.debug("data reference key: {}".format(id_reference))
                 #session_logger.debug(" data : {}".format(scaped_data))       
-                return location_list
+                return location_list 
 
 
 
@@ -158,7 +147,7 @@ location_list = tl.dashboard_parse_tables()
 #json_obj = tl.get_dashboard_json()
 # pprint(json_obj)
 # pprint(json_obj['data']['1466']['Last_connect'])
-print(location_list)
+pprint(location_list)
 
 
 # tl.get_dashboard_json()
