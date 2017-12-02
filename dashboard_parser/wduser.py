@@ -3,6 +3,7 @@ import parsing_dashboard
 import logging 
 from pprint import pprint
 import json
+from lxml import etree
 
 session_logger = logging.getLogger("login")
 session_logger.setLevel(logging.DEBUG)
@@ -18,9 +19,10 @@ session_logger.addHandler(ch)
 
 class wduser :
 
-        def __init__(self,user,passwd):
+        def __init__(self,user,passwd,location_name):
                 self.user = user
                 self.passwd = passwd
+                self.location_name = location_name
                 self.dashboard_header = {
 
                         'Host': 'streetsoncloud.com',
@@ -86,7 +88,6 @@ class wduser :
 
                 data = self.session.post('https://streetsoncloud.com/signs/tableview/getdata', headers = self.dashboard_header)
                 live_data = data.json()
-                live_data = data.json()
                 return live_data
         def dashboard_parse_tables (self):
 
@@ -100,7 +101,7 @@ class wduser :
                 # for each in headers: 
                 #       group_headers.append(each.get_text())
 
-                location_list = {}
+                self.location_list = {}
 
                 # cycle through each group in the dashboard
                 for groups in headers : 
@@ -126,27 +127,70 @@ class wduser :
                         session_logger.debug("Header : {}".format(header.get_text()))
 
                         #top level of the dict - contains groupnames 
-                        location_list[header.get_text()] =  {key:value for key,value in zip(id_reference,scaped_data)}
+                        self.location_list[header.get_text()] =  {key:value for key,value in zip(id_reference,scaped_data)}
 
                     
 
 
-                return location_list 
+                return self.location_list 
+
                 # print(group_headers)
-                
+        def dashboard_update_data ( self ) :
+            self.live_data = self.get_dashboard_json() 
+            #pprint(self.live_data)
+            
+            import pdb; pdb.set_trace()
+            for key,value in self.location_list.items():
+                if self.location_name == key :
+
+#                    import pdb; pdb.set_trace()
+                    print(self.location_list[key])
+#                    for each in self.live_data['data']:
+                    for k,v in self.live_data['data'].items():
+                            if k in self.location_list[key]:
+
+                                batt_xml = v['batt_voltage'] 
+                                last_conn_xml = v['Last_connect']
+
+                                batt_xml = etree.fromstring(batt_xml)
+                                last_conn_xml = etree.fromstring(last_conn_xml)
+                                self.location_list[key][k][12] = batt_xml.text
+                                self.location_list[key][k][11] = last_conn_xml.text
+                               
+                                
+
+                                #self.location_list[key][k][3]=v['']
+                                #self.location_list[key][k][4]=v[]
+                                #self.location_list[key][k][5]=v[]
+                                self.location_list[key][k][6]=v['count']
+                                self.location_list[key][k][7]=v['avg_speed']
+                                self.location_list[key][k][8]=v['avg_speed85']
+                                self.location_list[key][k][9]=v['max_speed']
+                                self.location_list[key][k][10]=v['min_speed']
+                                
+            print(self.location_list)
+
+
+
+            # initialize location list 
+            # parse the json data structure 
+            # cycle through the data structure , reference by id 
+            # find matching id in JSON and fill in the misisng data 
+
 
 
                         
-tl = wduser("Staging","Staging123")
+tl = wduser("Staging","Staging123","16666")
 tl.initialize_session()
 tl.login_session()
 htmlfile = tl.get_dashboard_html()
 dashboard_soup = tl.get_dashboard_soup(htmlfile)
 location_list = tl.dashboard_parse_tables()
-#json_obj = tl.get_dashboard_json()
-# pprint(json_obj)
+json_obj = tl.get_dashboard_json()
+tl.dashboard_update_data()
+#pprint(json_obj)
 # pprint(json_obj['data']['1466']['Last_connect'])
-pprint(location_list)
+#pprint(location_list)
 
 
 # tl.get_dashboard_json()
