@@ -197,9 +197,18 @@ class wduser :
 
             pprint(self.location_list)                                
 
-        def dashboard_view (self):
+        def dashboard_view (self,*args):
+            
+            location_filter = None
+            print(args[0])
+            if len(args) == 1:
+                location_filter = args[0]
+                 
+            elif len(args) > 1 :
+                print("error too many arguments")
             
             for key,value in self.location_list.items():
+                
                 print("==========================================="*5)
                 print(key)  
                 print("==========================================="*5)
@@ -213,7 +222,10 @@ class wduser :
 
                         print("{row_dat:{width}} | ".format(row_dat= value, width=self.box_width[attr]),end="")
                     print("\n")
-                   
+                if key == location_filter :
+                    break
+                
+
         
                         
 tl = wduser("Staging","Staging123","16666")
@@ -224,7 +236,7 @@ dashboard_soup = tl.get_dashboard_soup(htmlfile)
 location_list = tl.dashboard_parse_tables()
 json_obj = tl.get_dashboard_json()
 tl.dashboard_update_data()
-tl.dashboard_view()
+tl.dashboard_view("16666")
 #pprint(json_obj)
 # pprint(json_obj['data']['1466']['Last_connect'])
 #pprint(location_list)
