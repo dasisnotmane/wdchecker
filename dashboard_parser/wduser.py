@@ -22,7 +22,25 @@ class wduser :
         def __init__(self,user,passwd,location_name):
                 self.user = user
                 self.passwd = passwd
-                self.location_name = location_name
+                self.location_name = location_name 
+                self.box_width = {
+
+                        "Name" : 10 ,
+                        "Address": 30, 
+                        "Traffic Direction" : 18 ,
+                        "Model" : 10 ,
+                        "Serial #" :9,
+                        "FW #" : 5 ,
+                        "Vehicle Count" : 15 ,
+                        "Avg. Speed" :12 ,
+                        "85%. Speed" :12,
+                        "Max. Speed" :12 ,
+                        "Min. Speed" :12,
+                        "Last Communication" :15,
+                        "Power Supply" : 5                   
+                                            
+
+                }
                 self.dashboard_header = {
 
                         'Host': 'streetsoncloud.com',
@@ -92,22 +110,25 @@ class wduser :
         def dashboard_parse_tables (self):
 
                 
-                group_headers = []
+                self.group_headers = []
                 data = []
 
-                headers = self.dashboard_soup.find_all("div",{"class" : 'tblview-group'})
+                table_headers = self.dashboard_soup.find_all("div",{"class" : 'tblview-group'})
                 tables = self.dashboard_soup.find_all('table')
-
-                # for each in headers: 
-                #       group_headers.append(each.get_text())
-
+                
+                table_heading = self.dashboard_soup.find("thead")
+                self.column_headers = [col_head.get_text() for col_head in table_heading.find_all("th")] 
+#                import pdb; pdb.set_trace() 
+                for each in table_headers: 
+                      self.group_headers.append(each.get_text())
+#                print(self.group_headers)
                 self.location_list = {}
 
                 # cycle through each group in the dashboard
-                for groups in headers : 
+                for groups in table_headers  : 
 
                         # find the name of that group 
-                        header = groups.find("div",{"class":"list-group group-name"})
+                        self.header = groups.find("div",{"class":"list-group group-name"}).get_text()
                         
                         group = groups.find("tbody")
                         rows = group.find_all("tr")     
@@ -115,6 +136,8 @@ class wduser :
                         data = [row.find_all("td") for row in rows]
                         id_reference = []
                         scaped_data = []
+                        data_dict = {}
+                        data_form = []
 
                         # get a list of all the reference ids (used to indicate which location)
                         for tag in group.find_all("td"):
@@ -124,10 +147,17 @@ class wduser :
                         # get a list of all the individual data from that row of data 
                         for each in data :
                                 scaped_data.append( [value.get_text() for value in each])
-                        session_logger.debug("Header : {}".format(header.get_text()))
+                        for dat in scaped_data:
+
+                            data_dict = dict(zip(self.column_headers,dat))
+                            data_form.append(data_dict)
+
+#                        session_logger.debug("Header : {}".format(self.header.get_text()))
+                        session_logger.debug("Header : {}".format(self.header))
 
                         #top level of the dict - contains groupnames 
-                        self.location_list[header.get_text()] =  {key:value for key,value in zip(id_reference,scaped_data)}
+#                        self.location_list[self.header.get_text()] =  {key:value for key,value in zip(id_reference,scaped_data)}
+                        self.location_list[self.header] =  {key:value for key,value in zip(id_reference,data_form)}
 
                     
 
@@ -139,7 +169,7 @@ class wduser :
             self.live_data = self.get_dashboard_json() 
             #pprint(self.live_data)
             
-            import pdb; pdb.set_trace()
+            #import pdb; pdb.set_trace()
             for key,value in self.location_list.items():
                 if self.location_name == key :
 
@@ -154,31 +184,37 @@ class wduser :
 
                                 batt_xml = etree.fromstring(batt_xml)
                                 last_conn_xml = etree.fromstring(last_conn_xml)
-                                self.location_list[key][k][12] = batt_xml.text
-                                self.location_list[key][k][11] = last_conn_xml.text
-                               
-                                
 
-                                #self.location_list[key][k][3]=v['']
-                                #self.location_list[key][k][4]=v[]
-                                #self.location_list[key][k][5]=v[]
-                                self.location_list[key][k][6]=v['count']
-                                self.location_list[key][k][7]=v['avg_speed']
-                                self.location_list[key][k][8]=v['avg_speed85']
-                                self.location_list[key][k][9]=v['max_speed']
-                                self.location_list[key][k][10]=v['min_speed']
-                                
-            print(self.location_list)
+                                self.location_list[key][k]["Vehicle Count"]=v["count"]
+                                self.location_list[key][k]["Avg. Speed"]=v["avg_speed"]
+                                self.location_list[key][k]["85%. Speed"]=v["avg_speed85"]
+                                self.location_list[key][k]["Max. Speed"]=v["max_speed"]
+                                self.location_list[key][k]["Min. Speed"]=v["min_speed"]
+                                self.location_list[key][k]["Last Communication"]=last_conn_xml.text
+                                self.location_list[key][k]["Power Supply"]=batt_xml.text
+#
 
 
+            pprint(self.location_list)                                
 
-            # initialize location list 
-            # parse the json data structure 
-            # cycle through the data structure , reference by id 
-            # find matching id in JSON and fill in the misisng data 
+        def dashboard_view (self):
+            
+            for key,value in self.location_list.items():
+                print("==========================================="*5)
+                print(key)  
+                print("==========================================="*5)
+                for each in self.column_headers :
+                     
+                    print("{header_name:{width}} | ".format(header_name = each, width=self.box_width[each]),end="")
+                print("\n")
+                print("==========================================="*5)
+                for row,row_data in value.items():
+                    for attr,value in row_data.items():
 
-
-
+                        print("{row_dat:{width}} | ".format(row_dat= value, width=self.box_width[attr]),end="")
+                    print("\n")
+                   
+        
                         
 tl = wduser("Staging","Staging123","16666")
 tl.initialize_session()
@@ -188,6 +224,7 @@ dashboard_soup = tl.get_dashboard_soup(htmlfile)
 location_list = tl.dashboard_parse_tables()
 json_obj = tl.get_dashboard_json()
 tl.dashboard_update_data()
+tl.dashboard_view()
 #pprint(json_obj)
 # pprint(json_obj['data']['1466']['Last_connect'])
 #pprint(location_list)
