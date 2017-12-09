@@ -255,15 +255,15 @@ class wduser :
 
 
                             if last_conn_xml_status ==  "batt_is_ok": 
-                               last_conn_xml_status ="Connection Status is ok"
+                                print("{} Connection Status is ok".format(v["Name"]))
                             elif last_conn_xml_status  == "batt_is_not_ok":
-                                last_conn_xml_status="Connection Status is not ok"
+                                print("{} Connection Status is not ok".format(v["Name"]))
                             if batt_status ==  "batt_is_ok": 
-                                batt_status="Battery Status is ok"
+                                print("{} Battery Status is ok".format(v["Name"]))
                             elif batt_status  == "batt_is_not_ok":
-                                batt_status="Battery Status is not ok"
+                                print("{} Battery Status is ok".format(v["Name"]))
 
-                            print("{} \n\t {} \n\t {}".format(v['Name'],last_conn_xml_status,batt_status))
+                            print("{} \n\t {} \n {}".format(v['Name'],last_conn_xml_status,batt_status))
                             
 
 
