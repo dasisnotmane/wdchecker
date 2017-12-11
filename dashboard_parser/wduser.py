@@ -263,8 +263,64 @@ class wduser :
                             elif batt_status  == "batt_is_not_ok":
                                 batt_status="Battery Status is not ok"
 
-                            print("{} \n\t {} \n\t {}".format(v['Name'],last_conn_xml_status,batt_status))
+#                            print("{} \n\t {} \n\t {}".format(v['Name'],last_conn_xml_status,batt_status))
+                            session_logger.debug("Connection Status : {}".format(last_conn_xml_status))
+                            session_logger.debug("Battery Status : {}".format(batt_status))
+
+        def dash_check_config (self):
+
+            # need to cross referenc the excel sheet or database to make sure
+            # the serial , mode and fw are correct 
+
+            for each in self.location_list.items():
+                if key == self.location_name:
+                    for k,v in value.items():
+ 
+                            sign_serial = v["Serial #" ]
+                            sign_fw = v["FW #"]
+                            sign_model =v["Model"] 
+                            sign_addr = v['Address']
+
+
+        def dash_check_stats ( self):
+
+            for key,value in self.location_list.items():
+                if key == self.location_name:
+                    for k,v in value.items():
+                        
+                        vehicle_count = v["Vehicle Count"]
+                        avg_spd = v["Avg. Speed"]
+                        max_speed = v["Max. Speed"]
+                        min_speed =v["Min. Speed"]
+
                             
+                        if any(str.isdigit(c) for c in vehicle_count):
+                            session_logger.debug("vehicle_count: {}".format(vehicle_count))
+                        else : 
+                            session_logger.debug("{} : no speeds have been detected".format("vehicle_count"))
+
+                        if any(str.isdigit(c) for c in avg_spd ):
+                            session_logger.debug("avg_speed: {}".format(avg_spd))
+                        else : 
+                            session_logger.debug("{} : no speeds have been detected".format("avg_spd"))
+
+                        if any(str.isdigit(c) for c in max_speed):
+                            session_logger.debug("max_speed: {}".format(max_speed))
+                        else : 
+                            session_logger.debug("{} : no speeds have been detected".format("max_speed"))
+
+                        if any(str.isdigit(c) for c in min_speed):
+                            session_logger.debug("min_speed {}".format(min_speed))
+                        else : 
+                            session_logger.debug("{} : no speeds have been detected".format("min_speed"))
+
+#                        print(vehicle_count )
+#                        print(avg_spd )
+#                        print(85_speed )
+#                        print(min_speed )
+    
+                        
+#        def dash_check_group (self):
 
 
 tl = wduser("Staging","Staging123","16666")
@@ -277,6 +333,8 @@ json_obj = tl.get_dashboard_json()
 tl.dashboard_update_data()
 #tl.dashboard_view("16666")
 tl.dash_check_batt() 
+tl.dash_check_stats() 
+
 #pprint(json_obj)
 # pprint(json_obj['data']['1466']['Last_connect'])
 #pprint(location_list)
