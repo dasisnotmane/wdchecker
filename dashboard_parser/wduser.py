@@ -9,7 +9,7 @@ session_logger = logging.getLogger("login")
 session_logger.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+ch.setLevel(logging.INFO)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -272,14 +272,32 @@ class wduser :
             # need to cross referenc the excel sheet or database to make sure
             # the serial , mode and fw are correct 
 
-            for each in self.location_list.items():
+            for key,value in self.location_list.items():
                 if key == self.location_name:
                     for k,v in value.items():
- 
-                            sign_serial = v["Serial #" ]
-                            sign_fw = v["FW #"]
-                            sign_model =v["Model"] 
-                            sign_addr = v['Address']
+
+                        sign_serial = v["Serial #" ]
+                        sign_fw = v["FW #"]
+                        sign_model =v["Model"] 
+                        sign_addr = v['Address']
+
+                        if sign_serial:
+                            session_logger.info("{} Serial Number has been detected.".format(v["Name"]))
+                        else: 
+                            session_logger.info("{} Serial Number has not been detected.".format(v["Name"]))
+                        if sign_fw: 
+                            session_logger.info("{} Firmware of the sign has been detected.".format(v["Name"]))
+                        else: 
+                            session_logger.info("{} Firmware has not been detected.".format(v["Name"]))
+                        if sign_model: 
+                            session_logger.info("{} Sign model of sign has been detected.".format(v["Name"]))
+                        else: 
+                            session_logger.info("{} Sign model has not been detected.".format(v["Name"]))
+                        if any(str.isalpha(c) for c in sign_addr ):
+                            session_logger.info("{} Address of location has been detected.".format(v["Name"]))
+                        else: 
+                            session_logger.info("{} Address of location has not been detected.".format(v["Name"]))
+
 
 
         def dash_check_stats ( self):
@@ -292,11 +310,15 @@ class wduser :
                         avg_spd = v["Avg. Speed"]
                         max_speed = v["Max. Speed"]
                         min_speed =v["Min. Speed"]
-
+                        
+                       
                             
                         if any(str.isdigit(c) for c in vehicle_count):
+                            session_logger.info("{} Speed data has been detected.".format(v["Name"]))
                             session_logger.debug("vehicle_count: {}".format(vehicle_count))
                         else : 
+                            
+                            session_logger.info("{} Speed data has not been detected.".format(v["Name"]))
                             session_logger.debug("{} : no speeds have been detected".format("vehicle_count"))
 
                         if any(str.isdigit(c) for c in avg_spd ):
@@ -313,6 +335,7 @@ class wduser :
                             session_logger.debug("min_speed {}".format(min_speed))
                         else : 
                             session_logger.debug("{} : no speeds have been detected".format("min_speed"))
+
 
 #                        print(vehicle_count )
 #                        print(avg_spd )
@@ -334,6 +357,7 @@ tl.dashboard_update_data()
 #tl.dashboard_view("16666")
 tl.dash_check_batt() 
 tl.dash_check_stats() 
+tl.dash_check_config ()
 
 #pprint(json_obj)
 # pprint(json_obj['data']['1466']['Last_connect'])
