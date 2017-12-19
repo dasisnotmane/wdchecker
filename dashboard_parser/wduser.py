@@ -4,12 +4,13 @@ import logging
 from pprint import pprint
 import json
 from lxml import etree
-
+import pandas as pd
+from errors import * 
 session_logger = logging.getLogger("login")
 session_logger.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
+ch.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -17,7 +18,7 @@ ch.setFormatter(formatter)
 session_logger.addHandler(ch)
 
 
-class wduser :
+class wduser() :
 
         def __init__(self,user,passwd,location_name):
                 self.user = user
@@ -53,6 +54,8 @@ class wduser :
                         'Referer': 'https://streetsoncloud.com/signs/tableview'
 
                 }
+
+
 
         def initialize_session (self):
 
@@ -340,13 +343,99 @@ class wduser :
 #                        print(vehicle_count )
 #                        print(avg_spd )
 #                        print(85_speed )
-#                        print(min_speed )
+#                        print(min_speed )   
+
+
+#        def dash_check_serial:
+#        def dash_check_model:
+#        def dash_check_fw:
+        
+
+        def read_excel_db(self) :
+
+            # filter the excel sheet 
+            # get a dataframe of all the entries where the sales order matches the user account
+
+
+            xl = pd.ExcelFile("frmDetails.xlsx")
+            df = xl.parse("frmDetails")
+#            import pdb; pdb.set_trace()
+            try :
+                sof= df.loc[df["Sales Order"] == self.location_name ]
+
+            except Exception as e : 
+                print(e)
+
+            #drop any rows that have missing data in Serial Numbers 
+            sof2 = sof[pd.notnull(sof['Controller Serial Number'])]
+
+            return sof2
+
+
+        def get_wd_serials(self) :
+            
+            # get a list of all the serial numbers added in web director . 
+            serial_list = []
+
+            for key,value in self.location_list.items():
+                if key == str(self.location_name):
+                    for k,v in value.items():
+#                        import pdb;pdb.set_trace()
+                        serial_list.append(v["Serial #"])
+
+       
+            return serial_list
+
+
+
+        def dash_check_serials(self,sof,serial_list):
+            
+            # perform series of checks on the wd serials 
+
+            import pdb;pdb.set_trace()
+            try:
+            
+                if len(serial_list) != len(sof):
+                   # raise Exception  
+                    raise Countmissmatch ("Length does not match!")
+                
+
+            except Countmissmatch as e : 
+                session_logger.error("the number of signs on the database: {} and the web director do not match: {}".format(len(sof), len(serial_list)))
+                raise
+               
+            else:
+               session_logger.info("the number of signs on the database and web director are matching {}".format(len(serial_list)))
+           
+            
+        
+            return True
+            
     
+
+        def dash_check_config(self):
+
+            sof = self.read_excel_db()
+            serial_list =  self.get_wd_serials()
+            self.dash_check_serials(sof,serial_list)
+
                         
-#        def dash_check_group (self):
+            # check that we have the same number of serials in the db and the web director 
+           
+        
+
+            # first check the list for group-> Sales order comparison
+            # get the entries where the list group num is inclucded in SO column
+            # once you have the new dataframe , check if the serials on wd exist/match the entries
+            # once confirmed they match/exist check if the models and FW are matching as well
+            # also check if the sign name which is usually the name of the sign number /xx
+
+             
 
 
-tl = wduser("Staging","Staging123","16666")
+
+
+tl = wduser("Staging","Staging123",16666)
 tl.initialize_session()
 tl.login_session()
 htmlfile = tl.get_dashboard_html()
@@ -364,6 +453,6 @@ tl.dash_check_config ()
 #pprint(location_list)
 
 
-# tl.get_dashboard_json()
+#sjdasoid tl.get_dashboard_json()
 # print(htmlfile)
 # htmlsoup = tl.get_dashboard_soup(htmlfile)
